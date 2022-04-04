@@ -1,1 +1,73 @@
-PARTICIPANTS: use this file for creating the class diagram in mastery task 01
+Mastery Task 1
+@startuml
+
+class GetBookActivity{
++ Activity : String
++ Response : String
+-catalogDao : CatalogDao
+-recommendationsServiceClient : RecommendationServiceClient
++GetBookResponse request : GetBookRequest
++GetBookActivity catalogDao : String
++ GetBook : Name
+execute(GetBookRequest) : GetBookResponse
+}
+
+class GetPublishingStatusActivity
+
+class RemoveBookFromCatalogActivity{
+execute (RemoveBookFromCatalogRequest) : RemoveBookFromCatalogResponse
+}
+class RemoveBookFromCatalog{
+name : String
+}
+
+class SubmitBookForPublishingActivity{
+execute (SubmitBookForPublishingRequest) : SubmitBookForPublishingResponse
+}
+
+class RecommendationsServiceClient
+class Controller
+
+class CatalogDao{
+@DynamoDBMapper dynamoDbMapper : DynamoDBMapper
+
+
+}
+class PublishingStatusDao{
+@DynamoDBMapper dynamoDbMapper : DynamoDBMapperr
+@DynamoDBHashKey publishingRecordId : String
+@DynamoDBRangeKey status : PublishingRecordStatus
+@DynamoDBAttribute statusMessage : String
+@DynamoDBAttribute bookId : String
+
+}
+
+class CatalogItemVersion {
+    @DynamoDBHashKey bookId : String
+    @DynamoDBRangeKey version : int
+    @DynamoDBAttribute title : String
+    @DynamoDBAttribute author : String
+    @DynamoDBAttribute text : String
+    @DynamoDBAttribute genre : BookGenre
+    @DynamoDBAttribute inactive : boolean
+}
+class PublishingStatusItem{
+@DynamoDBHashKey publishingRecordId : String
+@DynamoDBRangeKey status : PublishingRecordStatus
++ statusMessage : String
++ bookId : String
+}
+
+class BookNotFoundException
+class PublishingStatusNotFoundException
+
+
+GetBookActivity --> CatalogDao
+GetBookActivity --> RecommendationsServiceClient
+SubmitBookForPublishingActivity --> PublishingStatusDao
+CatalogItemVersion --> CatalogDao
+PublishingStatusItem --> PublishingStatusDao
+BookNotFoundException --> CatalogDao
+
+@enduml
+
