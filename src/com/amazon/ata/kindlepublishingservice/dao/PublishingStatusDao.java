@@ -34,9 +34,9 @@ public class PublishingStatusDao {
      * Updates the publishing status table for the given publishingRecordId with the provided
      * publishingRecordStatus. If the bookId is provided it will also be stored in the record.
      *
-     * @param publishingRecordId The id of the record to update
+     * @param publishingRecordId     The id of the record to update
      * @param publishingRecordStatus The PublishingRecordStatus to save into the table.
-     * @param bookId The id of the book associated with the request, may be null
+     * @param bookId                 The id of the book associated with the request, may be null
      * @return The stored PublishingStatusItem.
      */
     public PublishingStatusItem setPublishingStatus(String publishingRecordId,
@@ -50,10 +50,10 @@ public class PublishingStatusDao {
      * publishingRecordStatus. If the bookId is provided it will also be stored in the record. If
      * a message is provided, it will be appended to the publishing status message in the datastore.
      *
-     * @param publishingRecordId The id of the record to update
+     * @param publishingRecordId     The id of the record to update
      * @param publishingRecordStatus The PublishingRecordStatus to save into the table.
-     * @param bookId The id of the book associated with the request, may be null
-     * @param message additional notes stored with the status
+     * @param bookId                 The id of the book associated with the request, may be null
+     * @param message                additional notes stored with the status
      * @return The stored PublishingStatusItem.
      */
     public PublishingStatusItem setPublishingStatus(String publishingRecordId,
@@ -63,10 +63,10 @@ public class PublishingStatusDao {
         String statusMessage = KindlePublishingUtils.generatePublishingStatusMessage(publishingRecordStatus);
         if (StringUtils.isNotBlank(message)) {
             statusMessage = new StringBuffer()
-                .append(statusMessage)
-                .append(ADDITIONAL_NOTES_PREFIX)
-                .append(message)
-                .toString();
+                    .append(statusMessage)
+                    .append(ADDITIONAL_NOTES_PREFIX)
+                    .append(message)
+                    .toString();
         }
 
         PublishingStatusItem item = new PublishingStatusItem();
@@ -76,5 +76,22 @@ public class PublishingStatusDao {
         item.setBookId(bookId);
         dynamoDbMapper.save(item);
         return item;
+    }
+
+    public List<PublishingStatusItem> getPublishingStatus(String publishingRecordId) {
+        PublishingStatusItem publishingStatusItem = new PublishingStatusItem();
+        publishingStatusItem.setPublishingRecordId(publishingRecordId);
+
+
+
+        DynamoDBQueryExpression<PublishingStatusItem> queryExpression = new DynamoDBQueryExpression<PublishingStatusItem>()
+                .withHashKeyValues(publishingStatusItem)
+                .withScanIndexForward(false)
+                .withLimit(1);
+        List<PublishingStatusItem> result = dynamoDbMapper.query(PublishingStatusItem.class, queryExpression);
+        if (result.isEmpty()) {
+            throw new PublishingStatusNotFoundException("status NOT found");
+        }
+         return result;
     }
 }

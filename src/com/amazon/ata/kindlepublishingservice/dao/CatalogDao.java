@@ -38,7 +38,6 @@ public class CatalogDao {
         if (book == null || book.isInactive()) {
             throw new BookNotFoundException(String.format("No book found for id: %s", bookId));
         }
-
         return book;
     }
 
@@ -57,5 +56,26 @@ public class CatalogDao {
             return null;
         }
         return results.get(0);
+    }
+    public CatalogItemVersion removeBookFromCatalog(String bookId) {
+        if (bookId == null || bookId.isEmpty()) {
+            throw new BookNotFoundException(bookId);
+        }
+        CatalogItemVersion book = getLatestVersionOfBook(bookId);
+
+        if (book == null || book.isInactive()){
+            throw new BookNotFoundException(String.format("NO book found for id: %s", bookId));
+        }
+        book.setInactive(true);
+        dynamoDbMapper.save(book);
+
+        return book;
+    }
+
+    public void validateBookExists(String bookID){
+        CatalogItemVersion version = getLatestVersionOfBook(bookID);
+        if (version == null){
+            throw new BookNotFoundException("Book NOT found");
+        }
     }
 }
