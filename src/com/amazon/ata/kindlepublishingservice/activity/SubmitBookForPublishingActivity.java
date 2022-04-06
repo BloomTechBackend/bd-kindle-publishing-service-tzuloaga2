@@ -51,18 +51,20 @@ public class SubmitBookForPublishingActivity {
      * @return SubmitBookForPublishingResponse Response object that includes the publishing status id, which can be used
      * to check the publishing state of the book.
      */
-    public SubmitBookForPublishingResponse execute(SubmitBookForPublishingRequest request) {
+      public SubmitBookForPublishingResponse execute(SubmitBookForPublishingRequest request) {
         final BookPublishRequest bookPublishRequest = BookPublishRequestConverter.toBookPublishRequest(request);
 
         // TODO: If there is a book ID in the request, validate it exists in our catalog
         // TODO: Submit the BookPublishRequest for processing
 
-        PublishingStatusItem item =  publishingStatusDao.setPublishingStatus(bookPublishRequest.getPublishingRecordId(),
-                PublishingRecordStatus.QUEUED,
-                bookPublishRequest.getBookId());
+
         if(bookPublishRequest.getBookId() != null){
             catalogDao.validateBookExists(bookPublishRequest.getBookId());
         }
+          PublishingStatusItem item =  publishingStatusDao.setPublishingStatus(bookPublishRequest.getPublishingRecordId(),
+                  PublishingRecordStatus.QUEUED,
+                  bookPublishRequest.getBookId());
+          bookPublishRequestManager.addRequest(bookPublishRequest);
 
         return SubmitBookForPublishingResponse.builder()
                 .withPublishingRecordId(item.getPublishingRecordId())

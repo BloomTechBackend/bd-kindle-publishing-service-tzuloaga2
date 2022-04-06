@@ -78,4 +78,31 @@ public class CatalogDao {
             throw new BookNotFoundException("Book NOT found");
         }
     }
+
+    public CatalogItemVersion createOrUpdateBook(KindleFormattedBook kindleFormattedBook){
+        CatalogItemVersion book = new CatalogItemVersion();
+        if (kindleFormattedBook.getBookId() == null){
+            book.setBookId(KindlePublishingUtils.generateBookId());
+            book.setAuthor(kindleFormattedBook.getAuthor());
+            book.setGenre(kindleFormattedBook.getGenre());
+            book.setText(kindleFormattedBook.getText());
+            book.setTitle(kindleFormattedBook.getTitle());
+            book.setVersion(1);
+            dynamoDbMapper.save(book);
+            return book;
+        }
+        else{
+            CatalogItemVersion alreadyABook = getBookFromCatalog(kindleFormattedBook.getBookId());
+            removeBookFromCatalog(alreadyABook.getBookId());
+            alreadyABook.setAuthor(kindleFormattedBook.getAuthor());
+            alreadyABook.setGenre(kindleFormattedBook.getGenre());
+            alreadyABook.setTitle(kindleFormattedBook.getTitle());
+            alreadyABook.setText(kindleFormattedBook.getText());
+            alreadyABook.setVersion(alreadyABook.getVersion()+1);
+            dynamoDbMapper.save(alreadyABook);
+            return alreadyABook;
+        }
+    }
+
+
 }
